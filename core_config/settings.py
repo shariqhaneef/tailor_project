@@ -143,6 +143,9 @@ STORAGES = {
     },
 }
 
+# Prevent 500 errors if a static file is missing from the manifest
+WHITENOISE_MANIFEST_STRICT = False
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
