@@ -20,8 +20,8 @@ for root, dirs, files in os.walk(directory):
             # Replace 'TailorCraft' -> 'TailorCraft' just in case
             new_content = re.sub(re.compile(r'TailorCraft', re.IGNORECASE), 'TailorCraft', new_content)
             
-            # Also replace 'tailorcraft_theme' -> 'tailorcraft_theme'
-            new_content = new_content.replace('tailorcraft_theme', 'tailorcraft_theme')
+            # Also replace 'TailorCraft_theme' -> 'TailorCraft_theme'
+            new_content = new_content.replace('TailorCraft_theme', 'TailorCraft_theme')
             
             if content != new_content:
                 with open(path, 'w', encoding='utf-8') as f:
