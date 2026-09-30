@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<style>
+    #clientUpdateVideo {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        object-fit: cover; z-index: -1;
+    }
+    .client-update-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(6, 6, 6, 0.82);
+        z-index: -1;
+    }
+    .client-update-container {
+        max-width: 750px;
+        margin: 50px auto;
+        padding: 0 20px;
+        z-index: 1;
+        position: relative;
+    }
+    /* Glassmorphism Panel */
+    .client-update-glass {
+        background: rgba(16, 16, 16, 0.78);
+        backdrop-filter: blur(28px);
+        -webkit-backdrop-filter: blur(28px);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 30px;
+        padding: 50px;
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.9);
+        color: #fff;
+    }
+    /* Form Customization */
+    .form-control, .form-select {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        color: #fff !important;
+        border-radius: 12px !important;
+        padding: 14px 18px !important;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus, .form-select:focus {
+        background: rgba(255, 255, 255, 0.09) !important;
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 20px rgba(220, 53, 69, 0.4) !important;
+    }
+    label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+        margin-bottom: 8px;
+        color: #e2e8f0;
+    }
+</style>
+
+<video autoplay muted loop id="clientUpdateVideo">
+    <source src="{% static 'videos/tail.mp4' %}" type="video/mp4">
+</video>
+<div class="client-update-overlay"></div>
+
+<div class="client-update-container">
+    <div class="client-update-glass">
+        
+        <div class="text-center mb-4">
+            <span class="badge bg-danger bg-opacity-25 text-danger px-3 py-1 rounded-pill mb-2 fw-bold text-uppercase tracking-wider" style="font-size: 0.75rem;">Client Modification</span>
+            <h2 class="fw-bold text-white mb-2">Modify Commission Specifications</h2>
+            <p class="text-muted small">Update your garment measurements or details while your order status remains in "Pending" review.</p>
+        </div>
+
+        <hr class="border-secondary opacity-25 mb-4">
+
+        <form method="POST">
+            {% csrf_token %}
+            {{ form|crispy }}
+            
+            <div class="d-flex gap-3 mt-4 pt-2">
+                <button type="submit" class="btn btn-danger flex-grow-1 fw-bold py-3 rounded-pill shadow-lg text-uppercase" style="letter-spacing: 1px;">Save Changes</button>
+                <a href="{% url 'dashboard' %}" class="btn btn-outline-light flex-grow-1 fw-bold py-3 rounded-pill text-uppercase" style="letter-spacing: 1px;">Cancel</a>
+            </div>
+        </form>
+
+    </div>
+</div>
+{% endblock %}

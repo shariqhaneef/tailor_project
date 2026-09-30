@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<style>
+    #myVideo {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
+    }
+    .main-content {
+        min-height: 80vh;
+        width: 100%;
+        
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        background: rgba(0, 0, 0, 0.4);
+    }
+    .form-signup {
+        width: 100%;
+        max-width: 600px;
+        padding: 50px 40px;
+        background: rgba(255, 255, 255, 0.15); 
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    .signup-logo {
+        border-radius: 50%;
+        border: 3px solid rgba(255, 255, 255, 0.8);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+        padding: 5px;
+        background: rgba(255, 255, 255, 0.1);
+        transition: transform 0.3s ease;
+        margin-bottom: 1.5rem;
+    }
+    .signup-logo:hover {
+        transform: scale(1.05);
+    }
+    .signup-title {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+        font-weight: 600;
+        font-size: 2.2rem;
+        margin-bottom: 1.5rem;
+    }
+    .form-signup input[type="text"],
+    .form-signup input[type="password"],
+    .form-signup input[type="email"] {
+        background: rgba(255, 255, 255, 0.85) !important;
+        border: none !important;
+        padding: 12px 15px !important;
+        border-radius: 8px !important;
+        color: #333 !important;
+    }
+    .form-signup label {
+        font-weight: 500;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+    .signup-btn {
+        background-color: #e50914 !important;
+        border: none !important;
+        padding: 14px !important;
+        font-size: 1.25rem !important;
+        border-radius: 8px !important;
+        font-weight: bold !important;
+        box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4) !important;
+        transition: background-color 0.3s ease, transform 0.2s ease !important;
+        color: white !important;
+        width: 100%;
+        margin-top: 1.5rem;
+    }
+    .signup-btn:hover {
+        background-color: #f40612 !important;
+        transform: translateY(-2px) !important;
+    }
+</style>
+
+<div>
+    <video autoplay muted loop id="myVideo">
+        <source src="{% static 'videos/tail2.mp4' %}" type="video/mp4">
+        <!--credit: https://www.pexels.com/@kelly-1-1179532 (pexels.com)-->
+    </video>  
+    <div class="main-content">
+        <main class="form-signup text-center text-white">
+            <form action="" method="post">
+                {% csrf_token %} 
+                
+                <img class="signup-logo" src="{% static 'images/logo3.gif' %}" alt="TailorCraft Logo" width="110" height="110">
+                <h3 class="signup-title">Register Account</h3>
+                
+                <div class="text-start">
+                    {{ register_form|crispy }}
+                </div>
+                
+                <button class="signup-btn" type="submit">Register</button>
+                <p class="mt-4 mb-1 text-light"><small>&copy; 2026 TailorCraft</small></p>
+            </form>
+        </main>
+    </div>
+</div>
+{% endblock %}
+

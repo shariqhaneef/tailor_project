@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Fixed Background Video */
+    #homeVideo {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
+    }
+
+    /* Dark overlay so the video isn't too bright */
+    .video-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: -1;
+    }
+
+    /* Glassmorphism Hero Section */
+    .hero-section {
+        background: rgba(0, 0, 0, 0.6); 
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: white;
+        padding: 80px 20px;
+        border-radius: 20px;
+        margin-top: 40px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Glassmorphism Feature Cards */
+    .feature-card {
+        background: rgba(255, 255, 255, 0.15); 
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        color: white;
+    }
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    /* Make card text stand out */
+    .feature-card h4, .feature-card p {
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.8);
+    }
+</style>
+
+<!-- The Background Video & Overlay -->
+<video autoplay muted loop id="homeVideo">
+    <source src="{% static 'videos/tail.mp4' %}" type="video/mp4">
+</video>
+<div class="video-overlay"></div>
+
+<div class="container position-relative" style="z-index: 1;">
+    <!-- Hero Banner Section -->
+    <div class="hero-section text-center px-4">
+        <img src="{% static 'images/logo3.gif' %}" alt="TailorCraft Logo" width="120" height="120" class="rounded-circle mb-4" style="border: 3px solid rgba(255, 255, 255, 0.8); box-shadow: 0 0 20px rgba(255,255,255,0.3);">
+        <h1 class="display-4 fw-bold" style="text-shadow: 2px 2px 5px rgba(0,0,0,0.8);">Welcome to TailorCraft</h1>
+        
+        <!-- Django Smart Logic: Check if the user is logged in -->
+        {% if user.is_authenticated %}
+            <p class="lead mb-4 mt-3">Welcome back, <strong class="text-danger">{{ user.username }}</strong>! Ready to manage your tailoring designs?</p>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
+                <!-- CONNECTED TO PORTFOLIO -->
+                <a href="/portfolio/" class="btn btn-danger btn-lg px-4 gap-3 fw-bold shadow">View Portfolio</a>
+                <a href="{% url 'logout' %}" class="btn btn-outline-light btn-lg px-4 fw-bold">Logout</a>
+            </div>
+        {% else %}
+            <p class="lead mb-4 mt-3" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">Premium tailoring and custom stitching services crafted just for you.</p>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mt-4">
+                <a href="{% url 'login' %}" class="btn btn-danger btn-lg px-4 gap-3 fw-bold">Sign In</a>
+                <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg px-4 fw-bold">Create Account</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Three Service Cards -->
+    <div class="row mt-5 mb-5">
+        <div class="col-md-4 mb-4">
+            <!-- Added d-flex flex-column to align buttons at the bottom perfectly -->
+            <div class="card feature-card h-100 text-center p-4 d-flex flex-column">
+                <h1 class="mb-3">✂️</h1>
+                <h4 class="fw-bold">Custom Tailoring</h4>
+                <!-- Added flex-grow-1 to push the button down -->
+                <p class="mt-2 text-light flex-grow-1">Bespoke designs crafted perfectly to fit your unique style and measurements.</p>
+                <a href="{% url 'inquiries:custom_tailoring' %}" class="btn btn-outline-light rounded-pill mt-3 fw-bold">Learn More</a>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card feature-card h-100 text-center p-4 d-flex flex-column">
+                <h1 class="mb-3">👗</h1>
+                <h4 class="fw-bold">Our Portfolio</h4>
+                <p class="mt-2 text-light flex-grow-1">Browse our latest stunning creations and get inspired for your next beautiful outfit.</p>
+                <!-- CONNECTED TO PORTFOLIO WITH A RED BUTTON TO STAND OUT -->
+                <a href="/portfolio/" class="btn btn-danger rounded-pill mt-3 fw-bold shadow">Explore Portfolio &rarr;</a>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+            <div class="card feature-card h-100 text-center p-4 d-flex flex-column">
+                <h1 class="mb-3">📞</h1>
+                <h4 class="fw-bold">Contact Us</h4>
+                <p class="mt-2 text-light flex-grow-1">Reach out with your inquiries and let's start bringing your dream designs to life.</p>
+                <a href="{% url 'inquiries:contact' %}" class="btn btn-outline-light rounded-pill mt-3 fw-bold">Learn More</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

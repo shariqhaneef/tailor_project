@@ -1,0 +1,399 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    :root {
+        --atelier-crimson: #dc3545;
+        --atelier-gold: #c5a059;
+        --atelier-dark: #0d0f12;
+        --atelier-panel: rgba(18, 21, 28, 0.78);
+        --atelier-border: rgba(255, 255, 255, 0.08);
+    }
+
+    body {
+        background-color: #08090b;
+        color: #e2e8f0;
+    }
+
+    #tailorVideo {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        object-fit: cover; z-index: -2;
+    }
+
+    .tailor-dark-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle at top left, rgba(220, 53, 69, 0.15), transparent 45%),
+                    radial-gradient(circle at bottom right, rgba(197, 160, 89, 0.1), transparent 40%),
+                    rgba(8, 9, 12, 0.92);
+        z-index: -1;
+    }
+
+    /* Glass Panels */
+    .workshop-panel {
+        background: var(--atelier-panel);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--atelier-border);
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+    }
+
+    /* Metric Header Cards */
+    .kpi-tile {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--atelier-border);
+        border-radius: 16px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .kpi-tile::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 4px; height: 100%;
+    }
+
+    .kpi-tile.kpi-pending::before { background: #facc15; }
+    .kpi-tile.kpi-progress::before { background: #60a5fa; }
+    .kpi-tile.kpi-complete::before { background: #34d399; }
+
+    /* Commission Cards */
+    .commission-ticket {
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid var(--atelier-border);
+        border-radius: 16px;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .commission-ticket:hover {
+        border-color: rgba(220, 53, 69, 0.4);
+        transform: translateY(-2px);
+    }
+
+    /* Artisan Assignment Strip */
+    .artisan-status-strip {
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 8px 14px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+    }
+
+    .measurement-pill {
+        background: rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 8px 14px;
+        display: inline-block;
+        margin-right: 8px;
+        margin-top: 4px;
+    }
+
+    .reply-box {
+        background: rgba(0, 0, 0, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 15px;
+        margin-top: 15px;
+    }
+
+    .reply-input {
+        background: rgba(255, 255, 255, 0.06) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        color: #fff !important;
+        border-radius: 8px !important;
+    }
+
+    .reply-input:focus {
+        border-color: var(--atelier-crimson) !important;
+        box-shadow: 0 0 10px rgba(220, 53, 69, 0.4) !important;
+    }
+
+    .status-badge {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 700;
+    }
+
+    .status-Pending {
+        background: rgba(234, 179, 8, 0.15);
+        color: #facc15;
+        border: 1px solid rgba(234, 179, 8, 0.3);
+    }
+
+    .status-Cutting, .status-Stitching, .status-InProgress {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .status-Completed {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+</style>
+
+<!-- Looping Ambience -->
+<video autoplay muted loop id="tailorVideo">
+    <source src="{% static 'videos/tail.mp4' %}" type="video/mp4">
+</video>
+<div class="tailor-dark-overlay"></div>
+
+<div class="container py-5 position-relative" style="z-index: 1;">
+    
+    <!-- Top Console Bar -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25 px-2 py-1 rounded-pill small">
+                    Master Atelier Control
+                </span>
+                <span class="text-secondary small">&bull; Logged Artisan: <strong class="text-light">{{ request.user.get_full_name|default:request.user.username }}</strong></span>
+            </div>
+            <h2 class="fw-bold text-white mb-0 mt-1">Cutting Room Workbench</h2>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="/admin/" class="btn btn-outline-light btn-sm rounded-pill px-3">
+                ⚙️ Django Admin
+            </a>
+            <a href="{% url 'inquiries:inquiry_form' %}" class="btn btn-danger btn-sm rounded-pill px-3 fw-semibold">
+                + New Order Ticket
+            </a>
+        </div>
+    </div>
+
+    <!-- Live Tailor KPIs -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="kpi-tile kpi-pending">
+                <span class="text-secondary small text-uppercase fw-bold">My Active Commissions</span>
+                <h2 class="text-warning fw-bold mb-0 mt-1">
+                    {{ my_workload_count|default:"0" }}
+                </h2>
+                <small class="text-muted">Assigned to your workbench</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="kpi-tile kpi-progress">
+                <span class="text-secondary small text-uppercase fw-bold">Workshop Pool Orders</span>
+                <h2 class="text-info fw-bold mb-0 mt-1">
+                    {{ orders.count|default:"0" }}
+                </h2>
+                <small class="text-muted">Total atelier active jobs</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="kpi-tile kpi-complete">
+                <span class="text-secondary small text-uppercase fw-bold">Direct Client Inquiries</span>
+                <h2 class="text-success fw-bold mb-0 mt-1">
+                    {{ contact_messages.count|default:"0" }}
+                </h2>
+                <small class="text-muted">Consultations & alterations</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Workshop Interface -->
+    <div class="workshop-panel p-4 p-md-5">
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-pills mb-4 border-bottom border-secondary border-opacity-25 pb-3" id="tailorTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active rounded-pill px-4 text-white fw-semibold" id="orders-tab" data-bs-toggle="pill" data-bs-target="#tab-orders" type="button" role="tab">
+                    ✂️ Commissions & Cutting Pool ({{ orders.count }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-pill px-4 text-white fw-semibold" id="messages-tab" data-bs-toggle="pill" data-bs-target="#tab-messages" type="button" role="tab">
+                    📬 Direct Inquiries ({{ contact_messages.count }})
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="tailorTabContent">
+            <!-- TAB 1: BESPOKE ORDERS -->
+            <div class="tab-pane fade show active" id="tab-orders" role="tabpanel">
+                {% if orders %}
+                    {% for order in orders %}
+                        <div class="commission-ticket p-4 mb-4">
+                            
+                            <!-- MULTI-TAILOR ASSIGNMENT & CLAIM BAR -->
+                            <div class="artisan-status-strip">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span style="font-size: 1.1rem;">🧵</span>
+                                    <div>
+                                        <span class="text-secondary small d-block" style="font-size: 0.72rem; line-height: 1;">ASSIGNED ARTISAN</span>
+                                        {% if order.assigned_tailor %}
+                                            <strong class="{% if order.assigned_tailor == request.user %}text-success{% else %}text-warning{% endif %} small">
+                                                Master {{ order.assigned_tailor.get_full_name|default:order.assigned_tailor.username }}
+                                                {% if order.assigned_tailor == request.user %} (You){% endif %}
+                                            </strong>
+                                        {% else %}
+                                            <strong class="text-danger small">Unassigned / Open Workshop Pool</strong>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div>
+                                    {% if not order.assigned_tailor %}
+                                        <a href="{% url 'inquiries:claim_order' order.pk %}" class="btn btn-sm btn-success rounded-pill px-3 fw-semibold">
+                                            Claim Ticket &rarr;
+                                        </a>
+                                    {% elif order.assigned_tailor != request.user and request.user.is_superuser %}
+                                        <a href="{% url 'inquiries:claim_order' order.pk %}" class="btn btn-sm btn-outline-warning rounded-pill px-3">
+                                            Reassign to Me
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                                <div>
+                                    <span class="status-badge status-{{ order.status|cut:' ' }} mb-2 d-inline-block">
+                                        {{ order.status|default:"Pending" }}
+                                    </span>
+                                    <h4 class="fw-bold text-white mb-1">
+                                        {{ order.subject|default:"Bespoke Garment" }}
+                                    </h4>
+                                    <div class="small text-secondary">
+                                        Client: <strong class="text-light">{{ order.name }}</strong> ({{ order.email }}) &bull; Ticket #AJ-{{ order.id }} &bull; {{ order.created_at|date:"M d, Y" }}
+                                    </div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'inquiries:order_update' order.pk %}" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                        Update Status & Notes
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Tailor Measurements Blueprint Grid -->
+                            <div class="p-3 rounded-3 bg-black bg-opacity-40 border border-secondary border-opacity-25 mb-3">
+                                <span class="text-danger small fw-bold text-uppercase d-block mb-2">✂️ Pattern Metrics:</span>
+                                <div class="measurement-pill">
+                                    <span class="text-secondary small">Category:</span>
+                                    <strong class="text-light ms-1">{{ order.item_category|default:"Custom" }}</strong>
+                                </div>
+                                <div class="measurement-pill">
+                                    <span class="text-secondary small">Chest Breadth:</span>
+                                    <strong class="text-warning ms-1">{% if order.chest %}{{ order.chest }}{% else %}Atelier Verification Required{% endif %}</strong>
+                                </div>
+                                <div class="measurement-pill">
+                                    <span class="text-secondary small">Trouser Inseam:</span>
+                                    <strong class="text-warning ms-1">{% if order.inseam %}{{ order.inseam }}{% else %}Atelier Verification Required{% endif %}</strong>
+                                </div>
+                            </div>
+
+                            <!-- Customer Notes -->
+                            {% if order.message %}
+                                <div class="p-3 rounded-3 bg-white bg-opacity-5 border border-white border-opacity-10 small mb-3">
+                                    <span class="text-secondary d-block mb-1">Customer Specification Notes:</span>
+                                    <p class="text-light mb-0 font-monospace">{{ order.message }}</p>
+                                </div>
+                            {% endif %}
+
+                            <!-- Replies History & Reply Box -->
+                            <div class="reply-box">
+                                <h6 class="text-danger fw-bold small text-uppercase mb-2">Tailor Communications Log:</h6>
+                                {% for reply in order.replies.all %}
+                                    <div class="border-bottom border-secondary border-opacity-25 pb-2 mb-2 small">
+                                        <div class="d-flex justify-content-between text-secondary">
+                                            <strong>
+                                                ✂️ {{ reply.sender.get_full_name|default:reply.sender.username }}
+                                                {% if reply.sender.is_staff %}<span class="text-warning">(Master Artisan)</span>{% endif %}
+                                            </strong>
+                                            <span>{{ reply.created_at|date:"M d, H:i" }}</span>
+                                        </div>
+                                        <div class="text-light">{{ reply.reply_text }}</div>
+                                    </div>
+                                {% empty %}
+                                    <p class="small text-muted mb-2">No fitting feedback recorded yet.</p>
+                                {% endfor %}
+
+                                <!-- Direct Send Reply Form -->
+                                <form method="POST" action="{% url 'inquiries:send_reply' order.id %}" class="d-flex gap-2 mt-3">
+                                    {% csrf_token %}
+                                    <input type="text" name="reply_text" class="form-control reply-input form-control-sm" placeholder="Send tape verification note, pattern confirmation, or ready date to customer..." required>
+                                    <button type="submit" class="btn btn-danger btn-sm px-3 rounded-pill fw-semibold text-nowrap">
+                                        Send to Client
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <h2 class="display-6 mb-2">🪡</h2>
+                        <h5 class="text-white fw-bold">All tailoring cutting orders are cleared</h5>
+                        <p class="text-secondary small">New measurement submissions from the catalog will appear here immediately.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- TAB 2: DIRECT CONSULTATION MESSAGES -->
+            <div class="tab-pane fade" id="tab-messages" role="tabpanel">
+                {% if contact_messages %}
+                    {% for msg in contact_messages %}
+                        <div class="commission-ticket p-4 mb-4">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <span class="badge bg-secondary bg-opacity-25 text-light mb-2">Direct Inquiry Ticket #AJ-{{ msg.id }}</span>
+                                    <h5 class="fw-bold text-white mb-1">{{ msg.subject|default:"General Inquiry" }}</h5>
+                                    <span class="small text-secondary">From: <strong class="text-light">{{ msg.name }}</strong> ({{ msg.email }}) &bull; Received on {{ msg.created_at|date:"M d, Y" }}</span>
+                                </div>
+                            </div>
+                            
+                            <p class="text-light small mt-2 mb-3 p-3 rounded-3 bg-black bg-opacity-30 border border-white border-opacity-10">
+                                {{ msg.message }}
+                            </p>
+
+                            <!-- Consultation Response Log & Reply Form -->
+                            <div class="reply-box">
+                                <h6 class="text-danger fw-bold small text-uppercase mb-2">💬 Consultation Response Log:</h6>
+                                
+                                {% for reply in msg.replies.all %}
+                                    <div class="border-bottom border-secondary border-opacity-25 pb-2 mb-2 small">
+                                        <div class="d-flex justify-content-between text-secondary">
+                                            <strong class="text-warning">
+                                                ✂️ {{ reply.sender.get_full_name|default:reply.sender.username }}
+                                                {% if reply.sender.is_staff %}(Master Artisan){% endif %}
+                                            </strong>
+                                            <span>{{ reply.created_at|date:"M d, Y H:i" }}</span>
+                                        </div>
+                                        <div class="text-light mt-1">{{ reply.reply_text }}</div>
+                                    </div>
+                                {% empty %}
+                                    <p class="small text-muted mb-2">No replies sent to this direct inquiry yet.</p>
+                                {% endfor %}
+
+                                <!-- Reply Input Form -->
+                                <form method="POST" action="{% url 'inquiries:send_reply' msg.id %}" class="d-flex gap-2 mt-3">
+                                    {% csrf_token %}
+                                    <input type="text" name="reply_text" class="form-control reply-input form-control-sm" placeholder="Send consultation advice or pricing quote to client..." required>
+                                    <button type="submit" class="btn btn-danger btn-sm px-4 rounded-pill fw-semibold text-nowrap shadow-sm">
+                                        Reply to Inquiry
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <h2 class="display-6 mb-2">📬</h2>
+                        <h5 class="text-white fw-bold">No direct messages in the queue</h5>
+                        <p class="text-secondary small">General consultations submitted from the Support page will appear here.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

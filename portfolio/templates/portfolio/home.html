@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* 1. Fixed Background Video Setup */
+    #portfolioVideo {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
+    }
+    .video-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5); /* Slightly darker so your photos stand out */
+        z-index: -1;
+    }
+
+    /* 2. Glassmorphism Header */
+    .portfolio-header {
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 50px 20px;
+        margin-top: 40px;
+        margin-bottom: 50px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    /* 3. Glassmorphism Portfolio Cards */
+    .portfolio-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        overflow: hidden;
+        color: white;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .portfolio-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    
+    /* 4. Make images fit perfectly in the cards */
+    .card-img-custom {
+        width: 100%;
+        height: 250px;
+        object-fit: contain;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+</style>
+
+<!-- Background Video -->
+<video autoplay muted loop id="portfolioVideo">
+    <source src="{% static 'videos/tail.mp4' %}" type="video/mp4">
+</video>
+<div class="video-overlay"></div>
+
+<div class="container position-relative" style="z-index: 1;">
+    
+    <!-- Top Banner Section -->
+    <div class="portfolio-header text-center text-white">
+        <h1 class="display-4 fw-bold" style="text-shadow: 2px 2px 5px rgba(0,0,0,0.8);">Our Premium Portfolio</h1>
+        <p class="lead mt-3" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.8);">Explore our finest custom stitching and tailoring masterpieces.</p>
+        <div class="mt-4">
+            <!-- This is the exact button linking back to your main home page -->
+            <a href="{% url 'home' %}" class="btn btn-outline-light btn-lg px-4 fw-bold rounded-pill shadow">
+                &larr; Back to Home
+            </a>
+        </div>
+    </div>
+
+    <!-- Bootstrap Grid for Portfolio Items -->
+    <div class="row g-4 mb-5">
+        {% for item in items %}
+            <div class="col-md-6 col-lg-4">
+                <div class="portfolio-card shadow-lg">
+                    
+                    <!-- Dynamic Image Loading (Now Clickable!) -->
+<a href="/portfolio/{{ item.id }}/" style="text-decoration: none;">
+    {% if item.image %}
+        <img src="{{ item.image.url }}" alt="{{ item.title }}" class="card-img-custom">
+    {% else %}
+        <!-- Fallback if you forgot to upload an image -->
+        <div class="card-img-custom d-flex align-items-center justify-content-center" style="background: rgba(0,0,0,0.4);">
+            <span class="text-light fs-5">✂️ No Image Yet</span>
+        </div>
+    {% endif %}
+</a>
+                    <!-- Card Text and Button -->
+                    <div class="p-4 d-flex flex-column flex-grow-1">
+                        <h3 class="fw-bold mb-2 text-white" style="text-shadow: 1px 1px 4px rgba(0,0,0,0.8);">{{ item.title }}</h3>
+                        <p class="text-light flex-grow-1" style="font-size: 0.95rem; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">
+                            {{ item.description|truncatewords:15 }}
+                        </p>
+                        
+                        <!-- Details Button -->
+                        <a href="/portfolio/{{ item.id }}/" class="btn btn-danger w-100 fw-bold mt-3 shadow" style="border-radius: 8px;">
+                            View Details &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+        {% empty %}
+            <!-- What shows up if the database is currently empty -->
+            <div class="col-12 text-center text-white mt-4 mb-5">
+                <div class="p-5" style="background: rgba(0,0,0,0.6); border-radius: 15px; border: 1px dashed rgba(255,255,255,0.4); backdrop-filter: blur(10px);">
+                    <h3 class="fw-bold">No portfolio items available yet.</h3>
+                    <p class="text-light">Add some stunning designs from your Django admin panel to see them beautifully displayed here!</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

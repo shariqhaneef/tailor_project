@@ -1,0 +1,79 @@
+{% extends 'tailor_base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<style>
+    #adminVideo {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        object-fit: cover; z-index: -1;
+    }
+    .video-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(10, 10, 10, 0.85);
+        z-index: -1;
+    }
+    .update-card {
+        background: rgba(20, 20, 20, 0.7);
+        backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+        border-radius: 20px;
+        border: 1px solid rgba(220, 53, 69, 0.4);
+        padding: 40px; margin: 40px auto;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9);
+        color: white;
+    }
+    .form-control, .form-select {
+        background: rgba(0, 0, 0, 0.5) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: #fff !important;
+    }
+</style>
+
+<video autoplay muted loop id="adminVideo">
+    <source src="{% static 'videos/tail.mp4' %}" type="video/mp4">
+</video>
+<div class="video-overlay"></div>
+
+<div class="container position-relative" style="z-index: 1;">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="update-card">
+                
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="text-danger fw-bold mb-0">Update Order #{{ object.id }}</h2>
+                    <a href="{% url 'tailor_dashboard' %}" class="btn btn-sm btn-outline-secondary rounded-pill">Cancel & Go Back</a>
+                </div>
+
+                <div class="bg-black bg-opacity-50 p-4 rounded-3 mb-4 border border-secondary border-opacity-25">
+                    <h5 class="fw-bold mb-3">Customer Reference</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted small">Name</p>
+                            <p class="fw-semibold">{{ object.name }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-1 text-muted small">Garment</p>
+                            <p class="fw-semibold">{{ object.item_category }} - {{ object.subject }}</p>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <p class="mb-1 text-muted small">Message / Requirements</p>
+                            <p class="fst-italic text-light">"{{ object.message }}"</p>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold mt-4 shadow rounded-pill">
+                        Save Order Updates
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

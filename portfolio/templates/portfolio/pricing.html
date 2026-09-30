@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .pricing-header {
+        padding: 4rem 0 2rem;
+        text-align: center;
+    }
+
+    .pricing-card {
+        background: var(--card-glass, rgba(22, 25, 33, 0.75));
+        border: 1px solid var(--card-border, rgba(255, 255, 255, 0.08));
+        border-radius: 24px;
+        transition: transform 0.25s ease, border-color 0.25s ease;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .pricing-card:hover {
+        border-color: rgba(220, 53, 69, 0.5);
+        transform: translateY(-4px);
+    }
+
+    .pricing-card.featured {
+        border: 2px solid #dc3545;
+        position: relative;
+    }
+
+    .pricing-card.featured::before {
+        content: 'MOST POPULAR';
+        position: absolute;
+        top: -14px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #dc3545;
+        color: #fff;
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        padding: 4px 12px;
+        border-radius: 20px;
+    }
+
+    .price-tag {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--text-heading, #fff);
+    }
+
+    .feature-check {
+        color: #10b981;
+        margin-right: 8px;
+    }
+
+    .table-pricing {
+        color: var(--text-primary, #e2e8f0);
+        border-color: var(--card-border, rgba(255, 255, 255, 0.1));
+    }
+</style>
+
+<div class="container py-4">
+    <!-- Header -->
+    <div class="pricing-header">
+        <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-2 small text-uppercase fw-bold mb-3">
+            TailorCraft Transparent Atelier Rates
+        </span>
+        <h1 class="display-5 fw-bold mb-2">Bespoke Commission Pricing</h1>
+        <p class="text-secondary mx-auto" style="max-width: 600px;">
+            Every garment is individually pattern-cut, single-needle stitched, and verified by your chosen master artisan.
+        </p>
+    </div>
+
+    <!-- Pricing Cards Grid -->
+    <div class="row g-4 mb-5">
+        <!-- Tier 1: Shirts -->
+        <div class="col-lg-4">
+            <div class="pricing-card p-4 p-md-5">
+                <div>
+                    <span class="badge bg-secondary bg-opacity-25 text-secondary rounded-pill px-3 py-1 mb-3 small">Shirt & Tops</span>
+                    <h3 class="fw-bold mb-1">Fine Cotton Shirt</h3>
+                    <p class="text-secondary small mb-4">Precision single-needle tailoring with collar and cuff interlining options.</p>
+                    <div class="price-tag mb-4">₹1,299 <span class="small text-secondary fw-normal fs-6">/ commission</span></div>
+
+                    <ul class="list-unstyled text-secondary small mb-4">
+                        <li class="mb-2"><span class="feature-check">✓</span> 100% Egyptian or Poplin Cotton</li>
+                        <li class="mb-2"><span class="feature-check">✓</span> Custom Collar & Cuff Style Choice</li>
+                        <li class="mb-2"><span class="feature-check">✓</span> Complimentary Cuff Monogramming</li>
+                        <li class="mb-2"><span class="feature-check">✓</span> Master Fit Vault Storage</li>
+                    </ul>
+                </div>
+                <div>
+                    <a href="{% url 'inquiries:inquiry_form' %}" class="btn btn-outline-danger w-100 rounded-pill fw-semibold py-2">
+                        Commission Shirt &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tier 2: Trousers / Pants (Featured) -->
+        <div class="col-lg-4">
+            <div class="pricing-card featured p-4 p-md-5 shadow-lg">
+                <div>
+                    <span class="badge bg-danger bg-opacity-25 text-danger rounded-pill px-3 py-1 mb-3 small">Trousers & Bottoms</span>
+                    <h3 class="fw-bold mb-1">Formal Tapered Trouser</h3>
+                    <p class="text-secondary small mb-4">Combed stretch-cotton cloth engineered with internal waistband grip.</p>
+                    <div class="price-tag mb-4">₹1,899 <span class="small text-secondary fw-normal fs-6">/ commission</span></div>
+
+                    <ul class="list-unstyled text-secondary small mb-4">
+                        <li class="mb-2"><span class="feature-check">✓</span> Premium Stretch-Cotton Blend</li>
+                        <li class="mb-2"><span class="feature-check">✓</span> Custom Inseam & Waistband Rise</li>
+                        <li class="mb-2"><span class="feature-check">✓</span> Dual Slash Pockets + Buttoned Rear</li>
+                        <li class="mb-2"><span class="feature-check">✓</span> Complimentary Ankle Hemming</li>
+                    </ul>
+                </div>
+                <div>
+                    <a href="{% url 'inquiries:inquiry_form' %}" class="btn btn-danger w-100 rounded-pill fw-semibold py-2 shadow-sm">
+                        Commission Trousers &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tier 3: Jackets / Suits -->
+        <div class="col-lg-4">
+            <div class="pricing-card p-4 p-md-5">
+                <div>
+                    <span class="badge bg-secondary bg-opacity-25 text-secondary rounded-pill px-3 py-1 mb-3 small">Outerwear & Suits</span>
+                    <h3 class="fw-bold mb-1">Bespoke Field Jacket / Suit</h3>
+                    <p class="text-secondary small mb-4">Structural canvas padding and full lining for superior shoulder drape.</p>
+                    <div class="price-tag mb-4">₹4,850 <span class="small text-secondary fw-normal fs-6">/ commission</span></div>
+
+                    <ul class="list-unstyled text-secondary small mb-4">
+                        <li class="mb-2"><span class="feature-check">✓</span> Premium Brushed Suede / Twill</li>
+                        <li class="mb-2"><span class="feature-check">✓</span> Full Structural Canvas Interlining</li>
+                        <li class="mb-2"><span class="feature-check">✓</span> Hand-Finished Lapel & Sleeves</li>
+                        <li class="mb-2"><span class="feature-check">✓</span> Lifetime Seam Care Warranty</li>
+                    </ul>
+                </div>
+                <div>
+                    <a href="{% url 'inquiries:inquiry_form' %}" class="btn btn-outline-danger w-100 rounded-pill fw-semibold py-2">
+                        Commission Outerwear &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fabric Upgrade & Customization Matrix Table -->
+    <div class="glass-marketplace-card p-4 p-md-5 mb-5">
+        <h3 class="fw-bold mb-3">Fabric Sourcing & Atelier Add-Ons</h3>
+        <p class="text-secondary small mb-4">Customize your base garment with specialty weaves and emergency turnaround services.</p>
+
+        <div class="table-responsive">
+            <table class="table table-pricing align-middle mb-0">
+                <thead>
+                    <tr class="text-uppercase small text-secondary border-bottom">
+                        <th>Fabric Tier / Service</th>
+                        <th>Description</th>
+                        <th>Turnaround Time</th>
+                        <th>Price Addition</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="fw-semibold text-white">Giza Cotton Upgrade</td>
+                        <td>Imported long-staple Egyptian Giza yarn with natural silky luster.</td>
+                        <td>Standard (5-7 Days)</td>
+                        <td><span class="text-success fw-bold">+ ₹450</span></td>
+                    </tr>
+                    <tr>
+                        <td class="fw-semibold text-white">Wrinkle-Free Tech Weave</td>
+                        <td>Treated cotton blend designed for all-day corporate travel.</td>
+                        <td>Standard (5-7 Days)</td>
+                        <td><span class="text-success fw-bold">+ ₹300</span></td>
+                    </tr>
+                    <tr>
+                        <td class="fw-semibold text-white">Express Atelier Rush</td>
+                        <td>Priority cutting table allocation and direct dispatch.</td>
+                        <td>48 Hours Rush</td>
+                        <td><span class="text-warning fw-bold">+ ₹800</span></td>
+                    </tr>
+                    <tr>
+                        <td class="fw-semibold text-white">Doorstep Tape Verification</td>
+                        <td>Master tailor visits your location for physical tape measurement.</td>
+                        <td>Scheduled Slot</td>
+                        <td><span class="text-info fw-bold">Complimentary</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- Pricing Cards Grid -->
+<div class="row g-4 mb-5">
+    {% for cat in categories %}
+        <div class="col-lg-4">
+            <div class="pricing-card p-4 p-md-5 {% if forloop.counter == 2 %}featured shadow-lg{% endif %}">
+                <div>
+                    <span class="badge bg-secondary bg-opacity-25 text-secondary rounded-pill px-3 py-1 mb-3 small">
+                        {{ cat.icon_emoji }} {{ cat.name }}
+                    </span>
+                    <h3 class="fw-bold mb-1">{{ cat.name }} Commission</h3>
+                    <p class="text-secondary small mb-4">{{ cat.description|default:"Individually pattern-cut with structural stitching and custom sizing." }}</p>
+                    
+                    <div class="price-tag mb-4">
+                        ₹{{ cat.base_starting_price }} 
+                        <span class="small text-secondary fw-normal fs-6">/ onwards</span>
+                    </div>
+
+                    <ul class="list-unstyled text-secondary small mb-4">
+                        <li class="mb-2"><span class="feature-check">✓</span> Custom Fit Measurement Vault Sync</li>
+                        <li class="mb-2"><span class="feature-check">✓</span> Master Artisan Pattern Verification</li>
+                        <li class="mb-2"><span class="feature-check">✓</span> Complimentary Seam Adjustments</li>
+                    </ul>
+                </div>
+                <div>
+                    <a href="{% url 'inquiries:inquiry_form' %}" class="btn {% if forloop.counter == 2 %}btn-danger shadow-sm{% else %}btn-outline-danger{% endif %} w-100 rounded-pill fw-semibold py-2">
+                        Commission {{ cat.name }} &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="text-center py-5 text-secondary">
+            <p>No active atelier categories configured yet. Add them via Django Admin.</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

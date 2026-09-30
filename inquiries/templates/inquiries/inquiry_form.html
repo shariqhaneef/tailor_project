@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<style>
+    #contactVideo {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        object-fit: cover; z-index: -1;
+    }
+    .video-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.72);
+        z-index: -1;
+    }
+
+    .inquiry-wrapper {
+        background: rgba(15, 15, 15, 0.75);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 45px;
+        margin: 40px auto;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+        color: #fff;
+    }
+
+    .form-control, .form-select {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: #fff !important;
+        border-radius: 10px !important;
+        padding: 12px 15px !important;
+        transition: all 0.3s ease;
+    }
+    .form-control:focus, .form-select:focus {
+        background: rgba(255, 255, 255, 0.12) !important;
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 15px rgba(220, 53, 69, 0.4) !important;
+    }
+    
+    label {
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+        color: #e2e8f0;
+    }
+
+    /* Live Summary Ticket Preview */
+    .ticket-preview {
+        background: linear-gradient(135deg, rgba(220, 53, 69, 0.15), rgba(0, 0, 0, 0.4));
+        border: 1px dashed rgba(220, 53, 69, 0.6);
+        border-radius: 16px;
+        padding: 25px;
+        height: 100%;
+    }
+    .ticket-preview h5 {
+        color: #ff6b6b;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+    }
+
+    /* Glassmorphism Modal Styling */
+    .glass-modal {
+        background: rgba(18, 18, 18, 0.88) !important;
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+        color: #fff;
+    }
+    .glass-modal .modal-header { border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+    .glass-modal .modal-footer { border-top: 1px solid rgba(255, 255, 255, 0.1); }
+    .glass-modal .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+    .measure-step {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+</style>
+
+<video autoplay muted loop id="contactVideo">
+    <source src="{% static 'videos/tail.mp4' %}" type="video/mp4">
+</video>
+<div class="video-overlay"></div>
+
+<div class="container position-relative" style="z-index: 1;">
+    <div class="row justify-content-center">
+        <div class="col-xl-10">
+            <div class="inquiry-wrapper">
+                
+                <div class="text-center mb-5">
+                    <span class="badge bg-danger bg-opacity-25 text-danger px-3 py-2 rounded-pill mb-3 fw-semibold">Bespoke Tailoring Request</span>
+                    <h1 class="display-6 fw-bold">Commission Your Garment</h1>
+                    <p class="text-muted">Provide your precise specifications below for a customized master fit.</p>
+                </div>
+
+                <div class="row g-4 align-items-start">
+                    <!-- Form Column -->
+                    <div class="col-lg-7">
+                        <div class="mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+                            <h5 class="mb-0 text-light fw-bold">Order Details</h5>
+                        </div>
+
+                        <form method="POST" enctype="multipart/form-data" id="inquiryForm">
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            
+                            <!-- Guide Button Relocated Inside The Form -->
+                            <div class="d-flex justify-content-end mt-3 mb-2">
+                                <button type="button" class="btn btn-outline-danger btn-sm fw-bold rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#measureGuideModal">
+                                    📏 How to Measure Guide
+                                </button>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold mt-3 shadow-lg py-3 rounded-pill" style="letter-spacing: 1px;">
+                                Submit Tailoring Order &rarr;
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Dynamic Live Ticket Preview Column -->
+                    <div class="col-lg-5">
+                        <div class="ticket-preview shadow-lg">
+                            <h5 class="fw-bold mb-3">Live Order Ticket</h5>
+                            <hr class="border-danger opacity-50">
+                            
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Client Name:</small>
+                                <span id="previewName" class="fw-semibold text-light">Not provided yet</span>
+                            </div>
+
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Garment Category:</small>
+                                <span id="previewCategory" class="badge bg-secondary mt-1">Shirt</span>
+                            </div>
+
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Garment Subject:</small>
+                                <span id="previewSubject" class="text-light fst-italic">Awaiting subject...</span>
+                            </div>
+
+                            <div class="p-3 rounded-3 bg-black bg-opacity-40 border border-secondary border-opacity-25 mt-4">
+                                <small class="text-warning fw-semibold d-block mb-1">💡 Pro-Tip</small>
+                                <p class="small text-muted mb-0">Select your garment type to dynamically format your profile requirements. Our master tailor will inspect your metrics upon submission.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Split-Layout Measurement Modal with Diagram -->
+<div class="modal fade" id="measureGuideModal" tabindex="-1" aria-labelledby="measureGuideModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+    <div class="modal-content glass-modal">
+      
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold text-danger" id="measureGuideModalLabel">✂️ Atelier Measurement Guide</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      
+      <div class="modal-body p-4 p-md-5">
+        <div class="row g-5">
+            <!-- Left Column: Sticky Measurement Diagram -->
+            <div class="col-lg-5 text-center">
+                <div class="position-sticky" style="top: 0;">
+                    <div class="bg-white p-3 rounded-4 shadow-lg border border-secondary border-opacity-25 mb-3">
+                        <img src="{% static 'images/measure_diagram.jpg' %}" 
+                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1598188306155-25e400eb5078?auto=format&fit=crop&w=600&q=80'" 
+                             alt="Bespoke Measurement Diagram" 
+                             class="img-fluid rounded-3" 
+                             style="max-height: 55vh; object-fit: contain;">
+                    </div>
+                    <p class="small text-danger fw-bold mb-0 tracking-wider text-uppercase">Standard Fit Diagram</p>
+                    <p class="small text-muted mt-2">Reference the key anatomical landmarks before noting your figures.</p>
+                </div>
+            </div>
+
+            <!-- Right Column: Step-by-Step Instructions -->
+            <div class="col-lg-7">
+                <p class="text-light opacity-75 mb-4 pb-3 border-bottom border-secondary border-opacity-25">
+                    For the most accurate fit, use a soft measuring tape and ask someone to assist you. Keep the tape comfortably snug without digging in.
+                </p>
+                
+                <h6 class="text-white fw-bold mb-3">Upper Body (Shirts & Jackets)</h6>
+                <div class="measure-step">
+                    <strong class="text-danger">Chest</strong>
+                    <p class="small mb-0 text-light opacity-75">Wrap the tape under your armpits, around the fullest part of your chest and shoulder blades. Keep the tape level across your back.</p>
+                </div>
+                
+                <div class="measure-step">
+                    <strong class="text-danger">Shoulder Width</strong>
+                    <p class="small mb-0 text-light opacity-75">Measure across the top of the back from the edge of one shoulder tip to the edge of the other shoulder tip.</p>
+                </div>
+                
+                <div class="measure-step mb-4">
+                    <strong class="text-danger">Sleeve Length</strong>
+                    <p class="small mb-0 text-light opacity-75">Start the tape at the shoulder seam and measure down the outside of the arm to just past the wrist bone.</p>
+                </div>
+
+                <h6 class="text-white fw-bold mb-3 border-top border-secondary border-opacity-25 pt-4">Lower Body (Trousers)</h6>
+                <div class="measure-step">
+                    <strong class="text-danger">Waist</strong>
+                    <p class="small mb-0 text-light opacity-75">Measure around your natural waistline, where your dress trousers sit. Insert one finger between the tape and your body for comfort.</p>
+                </div>
+                
+                <div class="measure-step">
+                    <strong class="text-danger">Inseam</strong>
+                    <p class="small mb-0 text-light opacity-75">Measure from the lowest part of the crotch seam straight down the inside of the leg to your preferred hem length.</p>
+                </div>
+                
+                <div class="measure-step">
+                    <strong class="text-danger">Hips / Seat</strong>
+                    <p class="small mb-0 text-light opacity-75">Stand with your heels together and measure around the fullest point of your hips and seat.</p>
+                </div>
+            </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-danger w-100 rounded-pill" data-bs-dismiss="modal">I Understand</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const categoryField = document.getElementById("id_item_category");
+        const inseamBox = document.getElementById("div_id_inseam");
+        const chestBox = document.getElementById("div_id_chest");
+
+        const nameInput = document.getElementById("id_name");
+        const subjectInput = document.getElementById("id_subject");
+        
+        const previewName = document.getElementById("previewName");
+        const previewCategory = document.getElementById("previewCategory");
+        const previewSubject = document.getElementById("previewSubject");
+
+        function updateFormDynamics() {
+            if (!categoryField) return;
+            
+            if (inseamBox && chestBox) {
+                inseamBox.style.display = "block";
+                chestBox.style.display = "block";
+
+                const val = categoryField.value.toLowerCase();
+                if (val.includes("shirt")) {
+                    inseamBox.style.display = "none";
+                } else if (val.includes("pant") || val.includes("trouser")) {
+                    chestBox.style.display = "none";
+                }
+            }
+            
+            if (previewCategory) previewCategory.textContent = categoryField.value || 'Custom';
+        }
+
+        if (nameInput && previewName) {
+            nameInput.addEventListener("input", function() {
+                previewName.textContent = this.value || 'Not provided yet';
+            });
+            if (nameInput.value) previewName.textContent = nameInput.value;
+        }
+
+        if (subjectInput && previewSubject) {
+            subjectInput.addEventListener("input", function() {
+                previewSubject.textContent = this.value || 'Awaiting subject...';
+            });
+            if (subjectInput.value) previewSubject.textContent = subjectInput.value;
+        }
+
+        if (categoryField) {
+            categoryField.addEventListener("change", updateFormDynamics);
+            updateFormDynamics();
+        }
+    });
+</script>
+{% endblock %}

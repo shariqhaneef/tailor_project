@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    #tailorLoginVideo {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        object-fit: cover; z-index: -2;
+    }
+
+    .tailor-login-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle at top right, rgba(220, 53, 69, 0.18), transparent 45%),
+                    radial-gradient(circle at bottom left, rgba(197, 160, 89, 0.12), transparent 40%),
+                    rgba(8, 9, 12, 0.90);
+        z-index: -1;
+    }
+
+    .atelier-auth-card {
+        background: rgba(18, 21, 28, 0.80);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.7);
+    }
+
+    .glass-input {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        color: #fff !important;
+        border-radius: 12px !important;
+        padding: 12px 16px;
+    }
+
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.09) !important;
+        border-color: #dc3545 !important;
+        box-shadow: 0 0 14px rgba(220, 53, 69, 0.4) !important;
+    }
+</style>
+
+<!-- Background Ambience -->
+<video autoplay muted loop id="tailorLoginVideo">
+    <source src="{% static 'videos/tail.mp4' %}" type="video/mp4">
+</video>
+<div class="tailor-login-overlay"></div>
+
+<div class="container py-5 position-relative" style="z-index: 1;">
+    <div class="row justify-content-center align-items-center min-vh-75">
+        <div class="col-md-6 col-lg-5">
+            <div class="atelier-auth-card p-4 p-md-5">
+                
+                <div class="text-center mb-4">
+                    <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-2 small text-uppercase fw-bold mb-2">
+                        🔒 Restricted Staff Portal
+                    </span>
+                    <h3 class="fw-bold text-white mb-1">Master Tailor Login</h3>
+                    <p class="text-secondary small">Access your cutting room workbench & assigned commissions</p>
+                </div>
+
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label small text-secondary">Artisan Username</label>
+                        <input type="text" name="username" class="form-control glass-input" placeholder="e.g. Ajaykrishan4" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label small text-secondary">Secure Passcode</label>
+                        <input type="password" name="password" class="form-control glass-input" placeholder="••••••••••••" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger w-100 py-3 rounded-pill fw-semibold shadow-sm mb-3">
+                        Unlock Cutting Room &rarr;
+                    </button>
+                </form>
+
+                <div class="text-center pt-3 border-top border-secondary border-opacity-25">
+                    <span class="small text-secondary">Looking for customer client hub? </span>
+                    <a href="{% url 'login' %}" class="small text-danger fw-semibold text-decoration-none">Client Login</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

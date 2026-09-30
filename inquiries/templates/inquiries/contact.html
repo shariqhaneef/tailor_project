@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    :root {
+        --atelier-gold: #c5a059;
+        --atelier-crimson: #dc3545;
+        --atelier-dark: #0b0c0e;
+        --atelier-card: rgba(18, 21, 28, 0.75);
+        --atelier-border: rgba(255, 255, 255, 0.08);
+    }
+
+    body {
+        background-color: var(--atelier-dark);
+        color: #e2e8f0;
+    }
+
+    #contactVideo {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -2;
+    }
+
+    .contact-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at top right, rgba(220, 53, 69, 0.15), transparent 45%),
+                    radial-gradient(circle at bottom left, rgba(197, 160, 89, 0.1), transparent 40%),
+                    rgba(8, 9, 12, 0.92);
+        z-index: -1;
+    }
+
+    .glass-card {
+        background: var(--atelier-card);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--atelier-border);
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Category Selector Buttons (Amazon/Flipkart issue-picker style) */
+    .issue-selector {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--atelier-border);
+        border-radius: 14px;
+        padding: 16px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        text-align: left;
+    }
+
+    .issue-selector:hover {
+        background: rgba(255, 255, 255, 0.07);
+        border-color: rgba(220, 53, 69, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .issue-selector.active {
+        background: linear-gradient(135deg, rgba(220, 53, 69, 0.2), rgba(220, 53, 69, 0.05));
+        border-color: var(--atelier-crimson);
+        box-shadow: 0 0 16px rgba(220, 53, 69, 0.3);
+    }
+
+    /* Form Inputs */
+    .glass-input {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        color: #fff !important;
+        border-radius: 12px !important;
+        padding: 12px 16px;
+    }
+
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border-color: var(--atelier-crimson) !important;
+        box-shadow: 0 0 14px rgba(220, 53, 69, 0.35) !important;
+    }
+
+    .glass-input::placeholder {
+        color: #64748b;
+    }
+
+    /* Interactive Accordion FAQs */
+    .accordion-item {
+        background: transparent !important;
+        border: 1px solid var(--atelier-border) !important;
+        border-radius: 14px !important;
+        margin-bottom: 12px;
+        overflow: hidden;
+    }
+
+    .accordion-button {
+        background: rgba(255, 255, 255, 0.03) !important;
+        color: #f1f5f9 !important;
+        box-shadow: none !important;
+        font-weight: 600;
+    }
+
+    .accordion-button:not(.collapsed) {
+        background: rgba(220, 53, 69, 0.12) !important;
+        color: #ff7882 !important;
+    }
+
+    .accordion-button::after {
+        filter: invert(1);
+    }
+
+    .accordion-body {
+        background: rgba(0, 0, 0, 0.25);
+        color: #94a3b8;
+        font-size: 0.92rem;
+    }
+
+    .contact-chip {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--atelier-border);
+        border-radius: 14px;
+    }
+</style>
+
+<!-- Looping Atelier Video -->
+<video autoplay muted loop id="contactVideo">
+    <source src="{% static 'videos/tail.mp4' %}" type="video/mp4">
+</video>
+<div class="contact-overlay"></div>
+
+<div class="container py-5 position-relative" style="z-index: 1;">
+    
+    <!-- Header Banner -->
+    <div class="text-center mb-5">
+        <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-2 small text-uppercase fw-bold">
+            TailorCraft Atelier Support
+        </span>
+        <h1 class="display-6 fw-bold text-white mt-2">How can our cutting room help you?</h1>
+        <p class="text-secondary small">Direct line to Master Tailor & customer order assistance</p>
+    </div>
+
+    <!-- 3 Core Direct Channels -->
+    <div class="row g-3 mb-5">
+        <div class="col-md-4">
+            <div class="contact-chip">
+                <span class="fs-3">📍</span>
+                <div>
+                    <span class="text-secondary small d-block">Physical Atelier</span>
+                    <strong class="text-light small">Main Studio & Fitting Lounge</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="contact-chip">
+                <span class="fs-3">⏱️</span>
+                <div>
+                    <span class="text-secondary small d-block">Workshop Operations</span>
+                    <strong class="text-light small">Mon – Sat: 9:30 AM – 8:30 PM</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="contact-chip">
+                <span class="fs-3">⚡</span>
+                <div>
+                    <span class="text-secondary small d-block">Response Guarantee</span>
+                    <strong class="text-light small">Under 3 hours during cutting shifts</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Side: Issue Selection & Direct Ticket Form -->
+        <div class="col-lg-7">
+            <div class="glass-card p-4 p-md-5">
+                <h4 class="fw-bold text-white mb-2">Submit an Inquiry Ticket</h4>
+                <p class="text-secondary small mb-4">Select what you need assistance with, and our concierge will route it directly to the designated artisan bench.</p>
+
+                <!-- Issue Category Chips -->
+                <label class="form-label text-secondary small fw-semibold">Choose Inquiry Focus</label>
+                <div class="row g-2 mb-4">
+                    <div class="col-6 col-md-3">
+                        <div class="issue-selector active" onclick="setSubject(this, 'Fitting & Measurement Calibration')">
+                            <span class="d-block mb-1">📏</span>
+                            <span class="small fw-semibold text-light d-block" style="font-size: 0.78rem;">Fitting Help</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="issue-selector" onclick="setSubject(this, 'Order Status & Cutting Update')">
+                            <span class="d-block mb-1">🧵</span>
+                            <span class="small fw-semibold text-light d-block" style="font-size: 0.78rem;">Order Status</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="issue-selector" onclick="setSubject(this, 'Fabric Sourcing & Consultation')">
+                            <span class="d-block mb-1">👔</span>
+                            <span class="small fw-semibold text-light d-block" style="font-size: 0.78rem;">Fabric Choice</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="issue-selector" onclick="setSubject(this, 'Alteration or Warranty Request')">
+                            <span class="d-block mb-1">✂️</span>
+                            <span class="small fw-semibold text-light d-block" style="font-size: 0.78rem;">Alterations</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <form method="POST" action="{% url 'inquiries:contact' %}">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary small">Your Name</label>
+                            <input type="text" name="name" class="form-control glass-input" 
+                                   value="{% if request.user.is_authenticated %}{{ request.user.get_full_name|default:request.user.username }}{% endif %}" 
+                                   placeholder="Full name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary small">Email Address</label>
+                            <input type="email" name="email" class="form-control glass-input" 
+                                   value="{% if request.user.is_authenticated %}{{ request.user.email }}{% endif %}" 
+                                   placeholder="email@example.com" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-secondary small">Subject Line</label>
+                            <input type="text" id="subjectField" name="subject" class="form-control glass-input" 
+                                   value="Fitting & Measurement Calibration" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-secondary small">Your Message / Special Instructions</label>
+                            <textarea name="message" rows="5" class="form-control glass-input" 
+                                      placeholder="Provide details about your commission, preferred fabrics, or fitting adjustments..." required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top border-secondary border-opacity-25">
+                        <span class="small text-secondary">
+                            🔒 Encrypted Atelier Dispatch
+                        </span>
+                        <button type="submit" class="btn btn-danger px-4 py-2 rounded-pill fw-semibold shadow-sm">
+                            Dispatch Ticket &rarr;
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Side: Interactive Tailoring FAQs -->
+        <div class="col-lg-5">
+            <div class="glass-card p-4 p-md-5 h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <h4 class="fw-bold text-white mb-2">Instant Answers</h4>
+                    <p class="text-secondary small mb-4">Quick solutions for common questions regarding bespoke tailoring.</p>
+
+                    <div class="accordion" id="supportFaqAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                    How do I submit accurate measurements?
+                                </button>
+                            </h2>
+                            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#supportFaqAccordion">
+                                <div class="accordion-body">
+                                    You can use our guided measurement diagram under <strong class="text-light">Commission Garment</strong>, or submit existing sizes from your favorite shirt or trousers. Our master tailor verifies every measurement before cutting cloth.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                    What if my garment needs alterations?
+                                </button>
+                            </h2>
+                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#supportFaqAccordion">
+                                <div class="accordion-body">
+                                    All bespoke commissions include complimentary hem, waist, and cuff alterations for 90 days after delivery.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                    Can I choose my assigned tailor?
+                                </button>
+                            </h2>
+                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#supportFaqAccordion">
+                                <div class="accordion-body">
+                                    Yes! When placing an inquiry, you can select any of our verified master artisans directly, or let the workshop floor auto-assign the best available specialist.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                    How long does bespoke tailoring take?
+                                </button>
+                            </h2>
+                            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#supportFaqAccordion">
+                                <div class="accordion-body">
+                                    Standard turnaround is 5 to 7 business days from pattern drafting to final steam press and dispatch.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Direct Contact Card -->
+                <div class="p-3 rounded-3 bg-white bg-opacity-5 border border-white border-opacity-10 mt-4">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="text-secondary small d-block">Prefer direct conversation?</span>
+                            <span class="text-white fw-bold small">Call Atelier Desk: +91 (0) 98765 43210</span>
+                        </div>
+                        <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-2 py-1 small">
+                            Lines Active
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setSubject(element, subjectText) {
+        document.querySelectorAll('.issue-selector').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+        const inputField = document.getElementById('subjectField');
+        if (inputField) {
+            inputField.value = subjectText;
+        }
+    }
+</script>
+{% endblock %}

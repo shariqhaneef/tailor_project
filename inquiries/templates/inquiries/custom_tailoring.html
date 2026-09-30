@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% load static %}
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+{% block content %}
+<style>
+    :root {
+        --atelier-crimson: #dc3545;
+        --atelier-gold: #c5a059;
+        --atelier-dark: #0b0c0e;
+        --atelier-panel: rgba(18, 21, 28, 0.82);
+        --atelier-border: rgba(255, 255, 255, 0.08);
+    }
+
+    body {
+        background-color: var(--atelier-dark);
+        color: #e2e8f0;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    #studioVideo {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        object-fit: cover; z-index: -2;
+    }
+
+    .studio-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle at top right, rgba(220, 53, 69, 0.15), transparent 45%),
+                    radial-gradient(circle at bottom left, rgba(197, 160, 89, 0.1), transparent 40%),
+                    rgba(8, 9, 12, 0.92);
+        z-index: -1;
+    }
+
+    /* Immersive Studio Container */
+    .studio-card {
+        background: var(--atelier-panel);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid var(--atelier-border);
+        border-radius: 24px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75);
+    }
+
+    /* Category Choice Cards */
+    .category-select-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 2px solid var(--atelier-border);
+        border-radius: 16px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .category-select-card:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(220, 53, 69, 0.5);
+        transform: translateY(-3px);
+    }
+
+    .category-select-card.selected {
+        background: linear-gradient(135deg, rgba(220, 53, 69, 0.2), rgba(220, 53, 69, 0.05));
+        border-color: var(--atelier-crimson);
+        box-shadow: 0 0 20px rgba(220, 53, 69, 0.35);
+    }
+
+    .category-select-card h5 {
+        font-family: 'Playfair Display', serif;
+        letter-spacing: 0.5px;
+    }
+
+    /* Glass Inputs */
+    .studio-input {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
+        color: #fff !important;
+        border-radius: 12px !important;
+        padding: 12px 16px;
+    }
+
+    .studio-input:focus {
+        background: rgba(255, 255, 255, 0.08) !important;
+        border-color: var(--atelier-crimson) !important;
+        box-shadow: 0 0 15px rgba(220, 53, 69, 0.4) !important;
+    }
+
+    .studio-input::placeholder {
+        color: #64748b;
+    }
+
+    /* Measurement Diagram Box */
+    .measure-guide-box {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 20px;
+    }
+
+    .atelier-heading {
+        font-family: 'Playfair Display', serif;
+    }
+</style>
+
+<!-- Background Ambience -->
+<video autoplay muted loop id="studioVideo">
+    <source src="{% static 'videos/tail.mp4' %}" type="video/mp4">
+</video>
+<div class="studio-overlay"></div>
+
+<div class="container py-5 position-relative" style="z-index: 1;">
+    
+    <!-- Header Banner -->
+    <div class="text-center mb-5">
+        <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25 rounded-pill px-3 py-2 small text-uppercase fw-bold mb-3">
+            TailorCraft Studio Portal
+        </span>
+        <h1 class="display-5 fw-bold text-white atelier-heading mt-1">Bespoke Garment Commission</h1>
+        <p class="text-secondary small mx-auto" style="max-width: 550px;">
+            Configure your silhouette, assign your master artisan, and submit calibrated pattern measurements directly to our cutting room floor.
+        </p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="studio-card p-4 p-md-5">
+                
+                <form method="POST" action="" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- STEP 1: Silhouette Category Selection -->
+                    <div class="mb-5">
+                        <label class="form-label text-secondary small fw-bold text-uppercase tracking-wider d-block mb-3">
+                            Step 1: Choose Your Garment Silhouette
+                        </label>
+                        
+                        <div class="row g-3" id="categoryGroup">
+                            <div class="col-md-4">
+                                <div class="category-select-card selected" onclick="selectCategory('Shirt', this)">
+                                    <span class="fs-1 d-block mb-2">👔</span>
+                                    <h5 class="text-white mb-1">Fine Shirt</h5>
+                                    <p class="text-secondary small mb-0">Egyptian cotton & tailored cuffs</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="category-select-card" onclick="selectCategory('Pants', this)">
+                                    <span class="fs-1 d-block mb-2">👖</span>
+                                    <h5 class="text-white mb-1">Formal Trouser</h5>
+                                    <p class="text-secondary small mb-0">Stretch twill & tailored taper</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="category-select-card" onclick="selectCategory('Suit', this)">
+                                    <span class="fs-1 d-block mb-2">🧥</span>
+                                    <h5 class="text-white mb-1">Bespoke Suit / Jacket</h5>
+                                    <p class="text-secondary small mb-0">Canvas structure & shoulder drape</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hidden input to store selected category value -->
+                        <input type="hidden" id="itemCategoryInput" name="item_category" value="Shirt">
+                    </div>
+
+                    <!-- STEP 2: Client Credentials & Master Tailor Assignment -->
+                    <div class="mb-5">
+                        <label class="form-label text-secondary small fw-bold text-uppercase tracking-wider d-block mb-3">
+                            Step 2: Client & Artisan Assignment
+                        </label>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small text-secondary">Full Name</label>
+                                <input type="text" name="name" class="form-control studio-input" 
+                                       value="{% if request.user.is_authenticated %}{{ request.user.get_full_name|default:request.user.username }}{% endif %}" 
+                                       placeholder="e.g. Rahul Sharma" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-secondary">Email Address</label>
+                                <input type="email" name="email" class="form-control studio-input" 
+                                       value="{% if request.user.is_authenticated %}{{ request.user.email }}{% endif %}" 
+                                       placeholder="email@domain.com" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-secondary">Contact Phone</label>
+                                <input type="text" name="phone" class="form-control studio-input" placeholder="+91 98765 43210">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small text-secondary">Preferred Master Artisan</label>
+                                <!-- Renders the assigned tailor selector from your form -->
+                                {{ form.assigned_tailor }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: Pattern Measurements & Visual Diagram Guide -->
+                    <div class="mb-5">
+                        <label class="form-label text-secondary small fw-bold text-uppercase tracking-wider d-block mb-3">
+                            Step 3: Pattern Calibration & Fit Dimensions
+                        </label>
+
+                        <div class="row g-4 align-items-center">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label small text-secondary">Chest Breadth / Bust (Inches)</label>
+                                    <input type="text" name="chest" class="form-control studio-input" placeholder="e.g., 40 inches">
+                                    <small class="text-muted">Measure fully around the widest part of the chest.</small>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label small text-secondary">Trouser Inseam / Length (Inches)</label>
+                                    <input type="text" name="inseam" class="form-control studio-input" placeholder="e.g., 32 inches">
+                                    <small class="text-muted">Measure from crotch seam down to ankle hem.</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="measure-guide-box text-center">
+                                    <img src="{% static 'images/measure_diagram.jpg' %}" alt="Measurement Guide" class="img-fluid rounded-3 mb-2 shadow-sm" style="max-height: 180px; object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1598808503846-d8cc5ab9ca9f?w=400&q=80'">
+                                    <span class="d-block text-warning small fw-semibold">📏 Tape Verification Standard</span>
+                                    <span class="text-secondary" style="font-size: 0.78rem;">Our master tailor verifies every measurement before cutting cloth.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 4: Commission Subject & Custom Notes -->
+                    <div class="mb-4">
+                        <label class="form-label text-secondary small fw-bold text-uppercase tracking-wider d-block mb-3">
+                            Step 4: Commission Instructions & Reference
+                        </label>
+
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label small text-secondary">Commission Title / Subject</label>
+                                <input type="text" name="subject" class="form-control studio-input" value="Bespoke Tailored Commission" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small text-secondary">Customization Notes / Styling Preferences</label>
+                                <textarea name="message" rows="4" class="form-control studio-input" placeholder="Describe collar preference, button style, fit looseness, or special stitching details..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Submit Bar -->
+                    <div class="d-flex justify-content-between align-items-center pt-4 border-top border-secondary border-opacity-25">
+                        <div>
+                            <span class="small text-secondary d-block">🔒 Direct Atelier Workshop Queue</span>
+                            <span class="text-success small fw-semibold">Estimated Cutting Turnaround: 5-7 Days</span>
+                        </div>
+                        <button type="submit" class="btn btn-danger px-5 py-3 rounded-pill fw-semibold shadow-lg">
+                            Submit Commission &rarr;
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function selectCategory(categoryName, cardElement) {
+        // Remove selected class from all cards
+        document.querySelectorAll('.category-select-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        
+        // Add selected class to clicked card
+        cardElement.classList.add('selected');
+        
+        // Update hidden input value
+        const hiddenInput = document.getElementById('itemCategoryInput');
+        if (hiddenInput) {
+            hiddenInput.value = categoryName;
+        }
+    }
+</script>
+{% endblock %}

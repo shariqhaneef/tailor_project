@@ -1,0 +1,619 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    :root {
+        --atelier-gold: #c5a059;
+        --atelier-crimson: #dc3545;
+        --atelier-dark: #0f1115;
+        --atelier-card: rgba(22, 25, 33, 0.75);
+        --atelier-border: rgba(255, 255, 255, 0.08);
+    }
+
+    body {
+        background-color: #0b0c0e;
+        color: #e2e8f0;
+    }
+
+    /* Video & Ambience Layer */
+    #dashboardVideo {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -2;
+    }
+
+    .dashboard-tint {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at top right, rgba(220, 53, 69, 0.12), transparent 45%),
+                    radial-gradient(circle at bottom left, rgba(197, 160, 89, 0.08), transparent 40%),
+                    rgba(8, 9, 12, 0.90);
+        z-index: -1;
+    }
+
+    /* Glass Panels */
+    .atelier-panel {
+        background: var(--atelier-card);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--atelier-border);
+        border-radius: 20px;
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
+    }
+
+    /* User Profile Card */
+    .profile-hero {
+        border-bottom: 1px solid var(--atelier-border);
+        padding-bottom: 1.5rem;
+    }
+
+    .avatar-ring {
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--atelier-crimson), #8b0000);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.6rem;
+        color: #fff;
+        box-shadow: 0 0 20px rgba(220, 53, 69, 0.35);
+    }
+
+    /* Navigation Tabs */
+    .atelier-nav .nav-link {
+        color: #94a3b8;
+        border-radius: 12px;
+        padding: 12px 18px;
+        margin-bottom: 6px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.25s ease;
+        border: 1px solid transparent;
+    }
+
+    .atelier-nav .nav-link:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.04);
+    }
+
+    .atelier-nav .nav-link.active {
+        color: #fff;
+        background: linear-gradient(135deg, rgba(220, 53, 69, 0.2), rgba(220, 53, 69, 0.05));
+        border-color: rgba(220, 53, 69, 0.3);
+    }
+
+    /* Order / Commission Ticket Card */
+    .order-card {
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid var(--atelier-border);
+        border-radius: 16px;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .order-card:hover {
+        border-color: rgba(220, 53, 69, 0.35);
+        transform: translateY(-2px);
+    }
+
+    /* Assigned Tailor Highlight Strip */
+    .tailor-assignment-strip {
+        background: rgba(197, 160, 89, 0.08);
+        border: 1px solid rgba(197, 160, 89, 0.25);
+        border-radius: 12px;
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+    }
+
+    /* Stage Tracker */
+    .tailor-timeline {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        margin: 24px 0 12px;
+    }
+
+    .tailor-timeline::before {
+        content: '';
+        position: absolute;
+        top: 14px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: rgba(255, 255, 255, 0.1);
+        z-index: 1;
+    }
+
+    .stage-step {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        flex: 1;
+    }
+
+    .stage-dot {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #1e222d;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        margin: 0 auto 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #64748b;
+    }
+
+    .stage-step.active .stage-dot {
+        background: var(--atelier-crimson);
+        border-color: #ff6b6b;
+        color: #fff;
+        box-shadow: 0 0 12px rgba(220, 53, 69, 0.7);
+    }
+
+    .stage-step.completed .stage-dot {
+        background: #10b981;
+        border-color: #34d399;
+        color: #fff;
+    }
+
+    .stage-label {
+        font-size: 0.72rem;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stage-step.active .stage-label {
+        color: #fff;
+        font-weight: 600;
+    }
+
+    /* Badges */
+    .badge-pending {
+        background: rgba(234, 179, 8, 0.15);
+        color: #facc15;
+        border: 1px solid rgba(234, 179, 8, 0.3);
+    }
+
+    .badge-in-progress, .badge-cutting, .badge-stitching {
+        background: rgba(59, 130, 246, 0.15);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .badge-completed {
+        background: rgba(16, 185, 129, 0.15);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* Profile Form Controls */
+    .glass-input {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        color: #fff !important;
+        border-radius: 10px !important;
+        padding: 10px 14px;
+    }
+
+    .glass-input:focus {
+        background: rgba(255, 255, 255, 0.09) !important;
+        border-color: var(--atelier-crimson) !important;
+        box-shadow: 0 0 12px rgba(220, 53, 69, 0.35) !important;
+    }
+
+    /* Metric Vault Tile */
+    .metric-chip {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--atelier-border);
+        border-radius: 12px;
+        padding: 14px;
+        text-align: center;
+    }
+</style>
+
+<!-- Atmospheric Video Loop -->
+<video autoplay muted loop id="dashboardVideo">
+    <source src="{% static 'videos/tail.mp4' %}" type="video/mp4">
+</video>
+<div class="dashboard-tint"></div>
+
+<div class="container py-5 position-relative" style="z-index: 1;">
+    <!-- Welcome Header Strip -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+        <div>
+            <h2 class="fw-bold text-white mb-1">Customer Client Hub</h2>
+            <p class="text-secondary small mb-0">Manage commissions, track master pattern cutting, and configure your identity profile.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'inquiries:inquiry_form' %}" class="btn btn-danger fw-semibold px-4 py-2 rounded-pill shadow-sm">
+                + New Commission
+            </a>
+            <a href="{% url 'inquiries:contact' %}" class="btn btn-outline-light px-3 py-2 rounded-pill small">
+                Consult Atelier
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Sidebar: Account & Profile Hub -->
+        <div class="col-lg-4">
+            <div class="atelier-panel p-4 mb-4">
+                <div class="profile-hero d-flex align-items-center gap-3">
+                    <div class="avatar-ring">
+                        {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+                    </div>
+                    <div>
+                        <h5 class="fw-bold text-white mb-0">{{ request.user.get_full_name|default:request.user.username }}</h5>
+                        <small class="text-secondary">{{ request.user.email }}</small>
+                        <div class="mt-1">
+                            <span class="badge bg-danger bg-opacity-25 text-danger border border-danger border-opacity-25 rounded-pill px-2 py-1" style="font-size: 0.65rem;">
+                                Verified Atelier Member
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <div class="nav flex-column atelier-nav mt-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    <button class="nav-link active text-start" id="orders-tab" data-bs-toggle="pill" data-bs-target="#tab-orders" type="button" role="tab">
+                        <span>🧵</span> Commissions & Orders 
+                        <span class="badge bg-secondary ms-auto small">{{ orders.count }}</span>
+                    </button>
+                    <button class="nav-link text-start" id="profile-tab" data-bs-toggle="pill" data-bs-target="#tab-profile" type="button" role="tab">
+                        <span>👤</span> Identity & Shipping Profile
+                    </button>
+                    <button class="nav-link text-start" id="metrics-tab" data-bs-toggle="pill" data-bs-target="#tab-metrics" type="button" role="tab">
+                        <span>📏</span> Saved Measurement Vault
+                    </button>
+                    <button class="nav-link text-start" id="messages-tab" data-bs-toggle="pill" data-bs-target="#tab-messages" type="button" role="tab">
+                        <span>💬</span> Master Tailor Notes
+                    </button>
+                </div>
+            </div>
+
+            <!-- Atelier Perks Summary -->
+            <div class="atelier-panel p-4">
+                <h6 class="text-white fw-bold mb-3 small text-uppercase tracking-wider">Bespoke Privileges</h6>
+                <div class="d-flex align-items-center justify-content-between py-2 border-bottom border-secondary border-opacity-25 small">
+                    <span class="text-secondary">Free Seam Alterations</span>
+                    <span class="text-success fw-bold">Active (90 Days)</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between py-2 border-bottom border-secondary border-opacity-25 small">
+                    <span class="text-secondary">Assigned Artisan Care</span>
+                    <span class="text-light">Dedicated Bench</span>
+                </div>
+                <div class="d-flex align-items-center justify-content-between pt-2 small">
+                    <span class="text-secondary">Pattern Custody</span>
+                    <span class="text-warning">Archived at Workshop</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Content Panels -->
+        <div class="col-lg-8">
+            <div class="tab-content" id="v-pills-tabContent">
+                
+                <!-- TAB 1: COMMISSIONS & ORDERS -->
+                <div class="tab-pane fade show active" id="tab-orders" role="tabpanel">
+                    <div class="atelier-panel p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+                            <h5 class="fw-bold text-white mb-0">Your Custom Orders</h5>
+                            <span class="small text-secondary">Live atelier workbench tracking</span>
+                        </div>
+
+                        {% if orders %}
+                            {% for order in orders %}
+                                <div class="order-card p-4 mb-4">
+                                    
+                                    <!-- MULTI-TAILOR ASSIGNMENT BAR -->
+                                    <div class="tailor-assignment-strip">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span style="font-size: 1.1rem;">✂️</span>
+                                            <div>
+                                                <span class="text-secondary small d-block" style="font-size: 0.72rem; line-height: 1;">DESIGNATED ARTISAN</span>
+                                                <strong class="text-warning small">
+                                                    {% if order.assigned_tailor %}
+                                                        Master {{ order.assigned_tailor.get_full_name|default:order.assigned_tailor.username }}
+                                                    {% else %}
+                                                        Workshop Floor Queue (Assigning Soon)
+                                                    {% endif %}
+                                                </strong>
+                                            </div>
+                                        </div>
+                                        {% if order.assigned_tailor %}
+                                            <span class="badge bg-dark border border-secondary border-opacity-50 text-light px-2 py-1 small" style="font-size: 0.68rem;">
+                                                Workbench Assigned
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-25 px-2 py-1 small" style="font-size: 0.68rem;">
+                                                Pending Assignment
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                                        <div>
+                                            <span class="badge 
+                                                {% if order.status == 'Pending' %}badge-pending
+                                                {% elif order.status == 'Cutting' or order.status == 'Stitching' %}badge-in-progress
+                                                {% elif order.status == 'Completed' %}badge-completed
+                                                {% else %}badge-pending{% endif %} rounded-pill px-3 py-1 mb-2">
+                                                {{ order.status|default:"Received" }}
+                                            </span>
+                                            <h5 class="fw-bold text-white mb-1">
+                                                {{ order.subject|default:"Bespoke Tailored Commission" }}
+                                            </h5>
+                                            <span class="small text-secondary">
+                                                Order Ticket #AJ-{{ order.id }} &bull; Placed on {{ order.created_at|date:"M d, Y" }}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            {% if order.status == 'Pending' %}
+                                                <a href="{% url 'inquiries:client_order_update' order.pk %}" class="btn btn-sm btn-outline-warning rounded-pill px-3">
+                                                    ✏️ Edit Metrics
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- 4-Stage Tailoring Pipeline Tracker -->
+                                    <div class="tailor-timeline">
+                                        <div class="stage-step {% if order.status %}completed{% endif %}">
+                                            <div class="stage-dot">1</div>
+                                            <div class="stage-label">Verified</div>
+                                        </div>
+                                        <div class="stage-step {% if order.status == 'Cutting' or order.status == 'Stitching' or order.status == 'Completed' %}active{% endif %}">
+                                            <div class="stage-dot">2</div>
+                                            <div class="stage-label">Pattern Cut</div>
+                                        </div>
+                                        <div class="stage-step {% if order.status == 'Stitching' or order.status == 'Completed' %}active{% endif %}">
+                                            <div class="stage-dot">3</div>
+                                            <div class="stage-label">Hand Stitch</div>
+                                        </div>
+                                        <div class="stage-step {% if order.status == 'Completed' %}completed{% endif %}">
+                                            <div class="stage-dot">4</div>
+                                            <div class="stage-label">Dispatched</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Metrics & Details Bar -->
+                                    <div class="row g-2 mt-3 pt-3 border-top border-secondary border-opacity-25 small">
+                                        <div class="col-sm-4">
+                                            <span class="text-secondary d-block">Category:</span>
+                                            <span class="fw-semibold text-light">{{ order.item_category|default:"Custom Wear" }}</span>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <span class="text-secondary d-block">Recorded Chest:</span>
+                                            <span class="fw-semibold text-light">{% if order.chest %}{{ order.chest }}{% else %}Atelier Fitting{% endif %}</span>
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <span class="text-secondary d-block">Recorded Inseam:</span>
+                                            <span class="fw-semibold text-light">{% if order.inseam %}{{ order.inseam }}{% else %}Atelier Fitting{% endif %}</span>
+                                        </div>
+                                    </div>
+
+                                    {% if order.message %}
+                                        <div class="p-3 rounded-3 bg-black bg-opacity-30 border border-white border-opacity-10 mt-3 small">
+                                            <span class="text-danger fw-semibold d-block mb-1">Your Customization Note:</span>
+                                            <p class="text-light opacity-75 mb-0">{{ order.message }}</p>
+                                        </div>
+                                    {% endif %}
+
+                                    <!-- CONVERSATION THREAD & CLIENT REPLY BOX -->
+                                    <div class="mt-4 pt-3 border-top border-secondary border-opacity-25">
+                                        <h6 class="small fw-bold text-warning mb-3">💬 Atelier Fitting Discussion & Notes</h6>
+                                        
+                                        <div class="d-flex flex-column gap-2 mb-3" style="max-height: 220px; overflow-y: auto;">
+                                            {% for reply in order.replies.all %}
+                                                <div class="p-3 rounded-3 {% if reply.sender.is_staff %}bg-danger bg-opacity-10 border border-danger border-opacity-25{% else %}bg-black bg-opacity-40 border border-secondary border-opacity-25{% endif %} small">
+                                                    <div class="d-flex justify-content-between mb-1" style="font-size: 0.75rem;">
+                                                        <span class="fw-bold {% if reply.sender.is_staff %}text-danger{% else %}text-info{% endif %}">
+                                                            {% if reply.sender.is_staff %}
+                                                                ✂️ Master Tailor ({{ reply.sender.get_full_name|default:reply.sender.username }})
+                                                            {% else %}
+                                                                👤 You (Client)
+                                                            {% endif %}
+                                                        </span>
+                                                        <span class="text-muted">{{ reply.created_at|date:"M d, H:i" }}</span>
+                                                    </div>
+                                                    <p class="text-light mb-0">{{ reply.reply_text }}</p>
+                                                </div>
+                                            {% empty %}
+                                                <p class="text-muted small fst-italic mb-0">No messages or revision notes exchanged yet. Type below to send a message to your tailor.</p>
+                                            {% endfor %}
+                                        </div>
+
+                                        <form method="POST" action="{% url 'inquiries:client_send_reply' order.id %}">
+                                            {% csrf_token %}
+                                            <div class="input-group">
+                                                <input type="text" name="reply_text" class="form-control glass-input" placeholder="Type a message, fitting request, or adjustment note..." required>
+                                                <button class="btn btn-danger px-4 fw-semibold" type="submit">Send &rarr;</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="text-center py-5">
+                                <h1 class="display-5 mb-3">🪡</h1>
+                                <h5 class="fw-bold text-white">No active tailoring commissions yet</h5>
+                                <p class="text-secondary small mb-4">Start your first bespoke order with tailor-verified patterns.</p>
+                                <a href="{% url 'inquiries:inquiry_form' %}" class="btn btn-danger px-4 py-2 rounded-pill fw-semibold">
+                                    Commission Garment
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- TAB 2: PROFILE & IDENTITY SETTINGS -->
+                <div class="tab-pane fade" id="tab-profile" role="tabpanel">
+                    <div class="atelier-panel p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+                            <div>
+                                <h5 class="fw-bold text-white mb-1">Client Profile & Coordinates</h5>
+                                <p class="text-secondary small mb-0">Manage contact information and default fitting delivery address.</p>
+                            </div>
+                            <span class="badge bg-danger bg-opacity-25 text-danger px-3 py-1 rounded-pill small">Active Account</span>
+                        </div>
+
+                        <form method="POST" action="">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small text-secondary">Username</label>
+                                    <input type="text" class="form-control glass-input" value="{{ request.user.username }}" readonly disabled>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small text-secondary">Email Address</label>
+                                    <input type="email" name="email" class="form-control glass-input" value="{{ request.user.email }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small text-secondary">First Name</label>
+                                    <input type="text" name="first_name" class="form-control glass-input" value="{{ request.user.first_name }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small text-secondary">Last Name</label>
+                                    <input type="text" name="last_name" class="form-control glass-input" value="{{ request.user.last_name }}">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small text-secondary">Delivery / Fitting Studio Address</label>
+                                    <textarea name="address" rows="3" class="form-control glass-input" placeholder="Enter flat/house no., street, city, pin code...">{{ request.user.profile.address|default:"" }}</textarea>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top border-secondary border-opacity-25">
+                                <a href="{% url 'password_reset' %}" class="small text-danger text-decoration-none fw-semibold">
+                                    🔑 Change Password
+                                </a>
+                                <button type="submit" name="update_profile" class="btn btn-danger px-4 py-2 rounded-pill fw-semibold shadow-sm">
+                                    Save Profile Updates
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TAB 3: SAVED MEASUREMENT VAULT -->
+                <div class="tab-pane fade" id="tab-metrics" role="tabpanel">
+                    <div class="atelier-panel p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+                            <div>
+                                <h5 class="fw-bold text-white mb-1">Master Fit Vault</h5>
+                                <p class="text-secondary small mb-0">Pre-saved metrics from your previous commissions.</p>
+                            </div>
+                            <a href="{% url 'inquiries:inquiry_form' %}" class="btn btn-outline-danger btn-sm rounded-pill">
+                                📏 Submit New Metrics
+                            </a>
+                        </div>
+
+                        <!-- Grid of Metrics -->
+                        <div class="row g-3">
+                            {% with latest=orders.first %}
+                                <div class="col-6 col-md-4">
+                                    <div class="metric-chip">
+                                        <span class="d-block text-secondary small">Chest Breadth</span>
+                                        <h4 class="text-white fw-bold mb-0 mt-1">{% if latest.chest %}{{ latest.chest }}{% else %}--{% endif %}</h4>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-4">
+                                    <div class="metric-chip">
+                                        <span class="d-block text-secondary small">Trouser Inseam</span>
+                                        <h4 class="text-white fw-bold mb-0 mt-1">{% if latest.inseam %}{{ latest.inseam }}{% else %}--{% endif %}</h4>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-md-4">
+                                    <div class="metric-chip">
+                                        <span class="d-block text-secondary small">Primary Silhouette</span>
+                                        <h5 class="text-white fw-bold mb-0 mt-2">{{ latest.item_category|default:"Formal" }}</h5>
+                                    </div>
+                                </div>
+                            {% endwith %}
+                        </div>
+
+                        <div class="p-4 rounded-3 bg-black bg-opacity-30 border border-secondary border-opacity-25 mt-4">
+                            <h6 class="text-warning fw-bold mb-2">💡 Want to update your master measurements?</h6>
+                            <p class="small text-secondary mb-0">
+                                Updates made while an order is in "Pending" status sync automatically with your assigned tailor's workbench.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 4: MASTER TAILOR REPLIES & COMMUNICATIONS -->
+                <div class="tab-pane fade" id="tab-messages" role="tabpanel">
+                    <div class="atelier-panel p-4">
+                        <div class="mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+                            <h5 class="fw-bold text-white mb-1">Tailor Communications</h5>
+                            <p class="text-secondary small mb-0">Direct fitting notes and dispatch dispatches from your assigned tailor.</p>
+                        </div>
+
+                        {% for order in orders %}
+                            <div class="mb-4 p-3 rounded-3 bg-black bg-opacity-25 border border-secondary border-opacity-25">
+                                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-25">
+                                    <h6 class="text-danger fw-bold small text-uppercase mb-0">Ticket #AJ-{{ order.id }} - {{ order.subject }}</h6>
+                                    <span class="badge bg-secondary rounded-pill small">
+                                        Tailor: {% if order.assigned_tailor %}{{ order.assigned_tailor.get_full_name|default:order.assigned_tailor.username }}{% else %}Master Atelier{% endif %}
+                                    </span>
+                                </div>
+
+                                <!-- Conversation Thread -->
+                                <div class="d-flex flex-column gap-2 mb-3" style="max-height: 250px; overflow-y: auto;">
+                                    {% for reply in order.replies.all %}
+                                        <div class="p-3 rounded-3 {% if reply.sender.is_staff %}bg-danger bg-opacity-10 border border-danger border-opacity-25{% else %}bg-black bg-opacity-40 border border-secondary border-opacity-25{% endif %} small">
+                                            <div class="d-flex justify-content-between mb-1" style="font-size: 0.75rem;">
+                                                <span class="fw-bold {% if reply.sender.is_staff %}text-danger{% else %}text-info{% endif %}">
+                                                    {% if reply.sender.is_staff %}
+                                                        ✂️ Master Tailor ({{ reply.sender.get_full_name|default:reply.sender.username }})
+                                                    {% else %}
+                                                        👤 You (Client)
+                                                    {% endif %}
+                                                </span>
+                                                <span class="text-muted">{{ reply.created_at|date:"M d, Y H:i" }}</span>
+                                            </div>
+                                            <p class="text-light mb-0">{{ reply.reply_text }}</p>
+                                        </div>
+                                    {% empty %}
+                                        <p class="text-secondary small fst-italic mb-0">No messages exchanged yet. Send a note to your tailor below.</p>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Client Reply Input Form -->
+                                <form method="POST" action="{% url 'inquiries:client_send_reply' order.id %}">
+                                    {% csrf_token %}
+                                    <div class="input-group">
+                                        <input type="text" name="reply_text" class="form-control glass-input" placeholder="Type a message or adjustment note to your tailor..." required>
+                                        <button class="btn btn-danger px-4 fw-semibold" type="submit">Send &rarr;</button>
+                                    </div>
+                                </form>
+                            </div>
+                        {% empty %}
+                            <p class="text-secondary text-center py-4">No communications received yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

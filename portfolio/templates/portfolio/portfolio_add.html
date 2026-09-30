@@ -1,0 +1,113 @@
+{% extends 'tailor_base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<style>
+    /* Fixed Background Video */
+    #adminVideo {
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%;
+        object-fit: cover; 
+        z-index: -1;
+    }
+    .video-overlay {
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%;
+        background: rgba(10, 10, 10, 0.85); /* Dark tint to keep the focus on the photo */
+        z-index: -1;
+    }
+
+    /* Glassmorphism Upload Card */
+    .upload-card {
+        background: rgba(20, 20, 20, 0.75);
+        backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+        border-radius: 20px;
+        border: 1px solid rgba(220, 53, 69, 0.4);
+        padding: 40px; margin: 40px auto;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9);
+        color: white;
+    }
+    .form-control, .form-select {
+        background: rgba(0, 0, 0, 0.5) !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+        color: #fff !important;
+    }
+    /* Makes the file upload button look much better on mobile */
+    input[type=file]::file-selector-button {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+</style>
+
+<!-- Background Video -->
+<video autoplay muted loop id="adminVideo">
+    <source src="{% static 'videos/tail.mp4' %}" type="video/mp4">
+</video>
+<div class="video-overlay"></div>
+
+<div class="container position-relative" style="z-index: 1;">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="upload-card">
+                
+                <div class="text-center mb-4">
+                    <h2 class="text-danger fw-bold">📸 Upload New Design</h2>
+                    <p class="text-muted small">Snap a photo of your latest work to add it directly to the public gallery.</p>
+                </div>
+
+                <!-- THE MOST IMPORTANT PART: enctype="multipart/form-data" -->
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    
+                    <!-- THE LIVE PREVIEW BOX (Hidden by default) -->
+                    <div id="previewContainer" class="text-center mt-3 mb-2" style="display: none;">
+                        <p class="text-warning small mb-2 fw-bold">Live Preview:</p>
+                        <img id="imagePreview" src="" alt="Selected Image Preview" class="img-fluid rounded-4 shadow-lg" style="max-height: 250px; border: 2px solid rgba(220, 53, 69, 0.5);">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-danger btn-lg w-100 fw-bold mt-4 shadow rounded-pill">
+                        Publish to Gallery
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JAVASCRIPT: Live Image Preview -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const fileInput = document.querySelector('input[type="file"]');
+        const previewContainer = document.getElementById("previewContainer");
+        const imagePreview = document.getElementById("imagePreview");
+
+        if (fileInput) {
+            fileInput.addEventListener("change", function() {
+                const file = this.files[0];
+                
+                if (file) {
+                    imagePreview.src = URL.createObjectURL(file);
+                    previewContainer.style.display = "block";
+                } else {
+                    imagePreview.src = "";
+                    previewContainer.style.display = "none";
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
